@@ -7,7 +7,7 @@ spark = SparkSession \
     .appName("COMP5349 A2 Data Loading Example") \
     .getOrCreate()
 
-cuad_data = "s3://CUADv1.json"
+cuad_data = "s3://aws-logs-454823713276-us-east-1/CUADv1.json"
 cuad_init_df = spark.read.json(cuad_data)
 
 from pyspark.sql.functions import explode
@@ -139,7 +139,3 @@ seq_ans = find_pos(ans_gp)
 seq_ans[2]
 
 ct1 = ct.collect()
-
-print(ct1[0][0][25])
-
-len(ct)

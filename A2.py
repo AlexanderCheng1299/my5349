@@ -1,6 +1,3 @@
-pip install pyspark
-
-
 from pyspark.sql import SparkSession
 spark = SparkSession \
     .builder \

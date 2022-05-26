@@ -4,9 +4,6 @@ parser.add_argument("--output", help="the output path")
 args = parser.parse_args()
 output_path = args.output
 
-from google.colab import drive
-drive.mount('/content/drive')
-
 from pyspark.sql import SparkSession
 spark = SparkSession \
     .builder \
@@ -23,11 +20,8 @@ cuad_data_df= cuad_init_df.select((explode("data").alias('data')))
 
 cuad_paragraph_df = cuad_data_df.select(explode("data.paragraphs").alias("paragraph"))
 
-cuad_paragraph_df.printSchema()
-
 cuad_context_df = cuad_paragraph_df.select("paragraph.context")
 
-cuad_paragraph_df.printSchema()
 
 cuad_paragraph_rdd = cuad_paragraph_df.rdd
 
@@ -35,13 +29,10 @@ cuad_qas_df = cuad_paragraph_df.select("paragraph.qas")
 
 cuad_ans_df = cuad_qas_df.select("qas.answers")
 
-cuad_ans_df.count()
 
 context_rdd = cuad_context_df.rdd
 
 qas_rdd = cuad_qas_df.rdd
-
-qas_rdd.take(1)
 
 from typing import Container
 def con_split(record,size=4096,step=2048):
@@ -393,15 +384,11 @@ ans2 = ans1.collect()
 
 pos_seq = context_rdd.map(catch_pos)
 
-pos_seq.take(1)
-
 ans_loc = ans1.map(catch_loc)
 
 qna = ans_loc.map(QNA)
 
 qna1 = qna.collect()
-
-qna1[0]
 
 pos_samp = pos_seq.map(comb_2)
 

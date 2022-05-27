@@ -400,6 +400,9 @@ pp11.write.json(output_path)
 
 qas_seq.collect()
 
+context_rdd.cache()
+context_rdd.count()
+
 #ct = context_rdd.map(con_split)
 
 #ct.take(1)

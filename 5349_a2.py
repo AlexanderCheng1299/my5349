@@ -400,6 +400,8 @@ pp11=spark.createDataFrame(pos_seq)
 
 pp11.write.json(output_path)
 
+qas_seq.collect()
+
 #ct = context_rdd.map(con_split)
 
 #ct.take(1)

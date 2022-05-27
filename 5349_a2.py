@@ -10,7 +10,7 @@ spark = SparkSession \
     .appName("COMP5349 A2 Data Loading Example") \
     .getOrCreate()
 
-spark.eventLog.logBlockUpdates.enabled=true
+spark.eventLog.logBlockUpdates.enabled=True
 
 from pyspark.sql import SQLContext
 

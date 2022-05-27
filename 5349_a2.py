@@ -19,6 +19,7 @@ from pyspark.sql.functions import explode
 cuad_data_df= cuad_init_df.select((explode("data").alias('data')))
 
 cuad_paragraph_df = cuad_data_df.select(explode("data.paragraphs").alias("paragraph"))
+cuad_paragraph_df.cache()
 
 cuad_context_df = cuad_paragraph_df.select("paragraph.context")
 
@@ -31,6 +32,7 @@ cuad_ans_df = cuad_qas_df.select("qas.answers")
 
 
 context_rdd = cuad_context_df.rdd
+context_rdd.cache()
 
 qas_rdd = cuad_qas_df.rdd
 

@@ -10,6 +10,8 @@ spark = SparkSession \
     .appName("COMP5349 A2 Data Loading Example") \
     .getOrCreate()
 
+spark.eventLog.logBlockUpdates.enabled=true
+
 from pyspark.sql import SQLContext
 
 cuad_data = "s3://aws-logs-454823713276-us-east-1/CUADv1.json"

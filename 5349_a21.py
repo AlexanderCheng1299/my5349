@@ -5,45 +5,44 @@ spark = SparkSession \
     .appName("COMP5349 A2 Data Loading Example") \
     .getOrCreate()
 
-from pyspark.sql import SQLContext
+##define the output path
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("--output", help="the output path")
+args = parser.parse_args()
+output_path = args.output
 
+###Part A: preprocess data set
+###
+from pyspark.sql import SQLContext
+#import the json file here
 cuad_data = "s3://aws-logs-454823713276-us-east-1/CUADv1.json"
 cuad_init_df = spark.read.json(cuad_data)
-
-cuad_init_df.printSchema()
 
 from pyspark.sql.functions import explode
 cuad_data_df= cuad_init_df.select((explode("data").alias('data')))
 
+#assess the paragraph directly here
 cuad_paragraph_df = cuad_data_df.select(explode("data.paragraphs").alias("paragraph"))
 
-cuad_paragraph_df.show(3)
-
+#assess the context of contracts
 cuad_context_df = cuad_paragraph_df.select("paragraph.context")
-
-cuad_context_df.show(3)
-
-cuad_paragraph_rdd = cuad_paragraph_df.rdd
-
-cuad_paragraph_rdd.take(1)
 
 cuad_qas_df = cuad_paragraph_df.select("paragraph.qas")
 
 cuad_ans_df = cuad_qas_df.select("qas.answers")
 
-cuad_ans_df.count()
+# transfer the dataframe into rdds
+cuad_paragraph_rdd = cuad_paragraph_df.rdd
 
 context_rdd = cuad_context_df.rdd
 
-
 context_rdd1 = cuad_context_df.rdd
-
-context_rdd1.take(1)[0][0]
 
 qas_rdd = cuad_qas_df.rdd
 
-qas_rdd.take(1)[0]
-
+###Part B: my self define functions
+###
 def con_split(record,size=4096,step=2048):
   list1 = []
   #record = record.collect()
@@ -554,6 +553,10 @@ def trans_samp(record):
       list1.append(dict1)
     return list1
 
+###Part C: process the data
+###
+
+##get positive sample here
 positive_samp = cuad_paragraph_rdd.map(one_func)
 
 yu = positive_samp.collect()
@@ -572,12 +575,6 @@ imp_num = imp_neg(a1)
 
 imp_num
 
-pos_rxtract = cuad_paragraph_rdd.map(extract_pos)
-
-pos_extract1 = pos_rxtract.collect()
-
-pos_extract1[0]
-
 cont = context_rdd.collect()
 
 tk = qas_rdd.collect()
@@ -590,47 +587,40 @@ questions
 
 ans1 = qas_rdd.map(get_ans)
 
-len(context_rdd.take(1)[0][0])
-
-ans1.take(1)
-
 ans2 = ans1.collect()
 
 pos_seq = context_rdd.map(catch_pos)
 
 ans_loc = ans1.map(catch_loc)
 
-ans_loc.take(1)
-
 qna = ans_loc.map(QNA)
 
 qna1 = qna.collect()
 
-len(qna1[0])
-
+##generate a pool for negative sequences here
 neg_pool = cuad_paragraph_rdd.map(red_func)
 
 neg_pool1= neg_pool.collect()
 
 neg_pool1[1]
 
+##add the possible negative into positive sample rdd here
 psb_neg = positive_samp.map(gen_neg)
-
-psb_neg.take(2)
-
+##add the impossible negative into the rdd here
 sample = psb_neg.map(get_imp)
-
-sample.take(1)[0][1][0]
 
 sample_ready = sample.map(samp_pre)
 
 sample_ready.take(1)
 
+##transfer the list into dict here
 sample_trans = sample_ready.flatMap(trans_samp)
 
 sample_trans1 = sample_trans.collect()
 
-
+##generate a json output here, notice that the output json would be 
+##settled in the same path as the script, the json includes all the 
+##positive, possibe negative and impossible negative samples
 import json
 with open('1.json', 'w') as f:
   json.dump(sample_trans1,f)

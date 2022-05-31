@@ -630,7 +630,6 @@ sample_trans = sample_ready.flatMap(trans_samp)
 
 sample_trans1 = sample_trans.collect()
 
-sample_trans1[2]
 
 import json
 with open('1.json', 'w') as f:

@@ -1,3 +1,6 @@
+##before run the submit script please type in chmod 777 test.sh
+##otherwise, you might get denied for runing the script
+
 
 from pyspark.sql import SparkSession
 spark = SparkSession \
